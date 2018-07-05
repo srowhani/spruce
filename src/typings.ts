@@ -1,18 +1,36 @@
-export enum Context {
-  stylesheet = 'stylesheet',
+export interface AbstractSyntaxTree {
+  diff(other: AbstractSyntaxTree): AbstractSyntaxTree;
 }
 
-export enum TokenType {
-  SingleQuoteString,
-  DoubleQuoteString,
-  MultilineComment,
-  SinglelineComment,
-  Newline,
-  Space,
-  Tab,
-  ExclamationMark,
-  QuotationMark,
+export interface Node extends AbstractSyntaxTree {
+  contains(type: string): boolean,
+  every(type: string, callback: () => void): void;
 }
+
+export enum ContextTypes {
+  arguments = 'arguments',
+  atkeyword = 'atkeyword',
+  atrule = 'atrule',
+  attributeSelector = 'attributeSelector'
+}
+
+export type Context = {
+  [K in ContextTypes]?: () => Node;
+}
+
+export const ValidTokenTypes = {
+  SingleQuoteString: 'SingleQuoteString',
+  DoubleQuoteString: 'DoubleQuoteString',
+  MultilineComment: 'MultilineComment',
+  SinglelineComment: 'SinglelineComment',
+  Newline: 'Newline',
+  Space: 'Space',
+  Tab: 'Tab',
+  ExclamationMark: 'ExclamationMark',
+  QuotationMark: 'QuotationMark',
+}
+
+type TokenType = keyof typeof ValidTokenTypes;
 
 export interface Token {
   tokenNumber: number,
@@ -27,3 +45,15 @@ export interface BaseSyntaxProvider {
   parse(tokens: Token[], context: Context): void
 }
 
+export enum ParserSyntax {
+  scss = 'scss',
+  sass = 'sass',
+}
+
+export interface ParserOptions {
+  syntax: ParserSyntax
+}
+
+export interface AbstractSyntaxTreeParser {
+  parse(input: string, options: ParserOptions): AbstractSyntaxTree;
+}
