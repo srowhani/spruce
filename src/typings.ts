@@ -2,25 +2,30 @@ export interface AbstractSyntaxTree {
   diff(other: AbstractSyntaxTree): AbstractSyntaxTree;
 }
 
+
 export const TokenTypes = {
   SingleQuoteString: 'SingleQuoteString',
   DoubleQuoteString: 'DoubleQuoteString',
-  MultilineComment: 'MultilineComment',
-  SinglelineComment: 'SinglelineComment',
-  Newline: 'Newline',
   Space: 'Space',
+  Newline: 'Newline',
   Tab: 'Tab',
-  ExclamationMark: 'ExclamationMark',
-  QuotationMark: 'QuotationMark',
 };
 
 export type TokenType = keyof typeof TokenTypes;
 
+export const Punctuation: { [index: string]: string } = {
+  ' ': TokenTypes.Space,
+  '\n': TokenTypes.Newline,
+  '\r': TokenTypes.Newline,
+  '\t': TokenTypes.Tab,
+}
+
+
 export interface Token {
+  tokenType: TokenType,
   tokenNumber: number,
   lineNumber: number,
   columnNumber: number,
-  type: TokenType,
   value: string,
 };
 

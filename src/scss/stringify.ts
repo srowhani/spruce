@@ -1,4 +1,4 @@
-import { AbstractSyntaxTree, Node, Groot, TokenizedSymbol } from '@src/typings';
+import { Node, Groot, TokenizedSymbol } from '@src/typings';
 
 const groot: Groot = {
   arguments(node) {
