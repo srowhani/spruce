@@ -20,7 +20,6 @@ export const Punctuation: { [index: string]: string } = {
   '\t': TokenTypes.Tab,
 }
 
-
 export interface Token {
   tokenType: TokenType,
   tokenNumber: number,
@@ -142,4 +141,38 @@ export interface ParserOptions {
 
 export interface AbstractSyntaxTreeParser {
   parse(input: string, options: ParserOptions): AbstractSyntaxTree;
+}
+
+export interface TokenizerOptions {
+  tabSize?: number;
+}
+
+export interface TokenizerState {
+  cursorPosition: number,
+  lineNumber: number,
+  columnNumber: number,
+  urlMode: boolean,
+  cc?: string,
+  nc?: string,
+}
+
+type StateModifierFunction = (
+  state: TokenizerState, 
+  context?: {
+    value?: string
+  }
+) => TokenizerState;
+
+export interface AbstractTokenizer {
+
+  getCurrentState(): TokenizerState;
+  process(input: string): Token[];
+  
+
+  parseWhitespace: StateModifierFunction;
+  parseString: StateModifierFunction;
+  parseEquality: StateModifierFunction;
+  parseInequality: StateModifierFunction;
+  parseNumber: StateModifierFunction;
+  parseIdent: StateModifierFunction;
 }
