@@ -168,7 +168,8 @@ export interface AbstractTokenizer {
   getCurrentState(): TokenizerState;
   process(input: string): Token[];
   
-
+  parseMultilineComment: StateModifierFunction;
+  parseSinglelineComment: StateModifierFunction;
   parseWhitespace: StateModifierFunction;
   parseString: StateModifierFunction;
   parseEquality: StateModifierFunction;

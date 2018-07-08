@@ -34,8 +34,10 @@ export default class ScssTokenizer implements AbstractTokenizer {
     this.input = input;
 
     for (; state.cursorPosition < input.length; state.columnNumber++, state.cursorPosition++) {
+      
       state.cc = input[state.cursorPosition];
       state.nc = input[state.cursorPosition + 1];
+
       const punctuationType = Punctuation[state.cc];
       
       if (state.cc === '/' && state.nc === '*') {
@@ -43,9 +45,12 @@ export default class ScssTokenizer implements AbstractTokenizer {
       } 
       
       else if (state.cc === '/' && state.nc === '/' && !state.urlMode) {
-        state = { ...this.parseSinglelineComment(state)} ;
+        state = { ...this.parseSinglelineComment(state)};
       }
 
+      else if (state.cc === '\"' || state.cc === '\'') {
+        state = { ...this.parseString(state, { value: state.cc }) }
+      }
       else if (state.cc === ' ') {
         state = { ...this.parseWhitespace(state) }
       }
@@ -107,14 +112,39 @@ export default class ScssTokenizer implements AbstractTokenizer {
       ...currentState,
       ...{
         cursorPosition: pos,
-        columnNumber: pos - currentState.cursorPosition,
+        columnNumber: currentState.columnNumber + (pos - currentState.cursorPosition),
       }
     }
 
   }
 
-  parseString(currentState: TokenizerState) {
-    return {} as TokenizerState
+  parseString(currentState: TokenizerState, context: { value: string }) {
+    const { input } = this;
+    const quoteCharacter = context.value;
+    let pos = currentState.cursorPosition + 1;
+
+    for (; pos < input.length; pos++) {
+      if (input[pos] === '\\') {
+        pos += 1;
+      } else if (input[pos] === quoteCharacter) {
+        break;
+      }
+    }
+    this.push({
+      tokenType: quoteCharacter === '"' ? TokenTypes.DoubleQuoteString : TokenTypes.SingleQuoteString,
+      columnNumber: currentState.columnNumber,
+      lineNumber: currentState.lineNumber,
+      value: input.substring(currentState.cursorPosition, pos + 1)
+    });
+   
+    return {
+      ...currentState,
+      ...{
+        cursorPosition: pos,
+        columnNumber: currentState.columnNumber + (pos - currentState.cursorPosition)
+      }
+    }
+
   }
   parseEquality(currentState: TokenizerState) {
     return {} as TokenizerState
