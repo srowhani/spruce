@@ -3,26 +3,34 @@ export interface AbstractSyntaxTree {
 }
 
 
-export const TokenTypes = {
-  SingleQuoteString: 'SingleQuoteString',
-  DoubleQuoteString: 'DoubleQuoteString',
-  Space: 'Space',
-  Newline: 'Newline',
-  Tab: 'Tab',
+export enum TokenType {
+  SingleQuoteString = 'SingleQuoteString',
+  DoubleQuoteString = 'DoubleQuoteString',
+  SinglelineComment = 'SinglelineComment',
+  MultilineComment = 'MultilineComment',
+  Space = 'Space',
+  Newline = 'Newline',
+  Tab = 'Tab',
+  EqualitySign = 'EqualitySign',
+  InequalitySign = 'InequalitySign'
 };
 
-export type TokenType = keyof typeof TokenTypes;
+export type TokenReducer = {
+  name: string,
+  match: (state: TokenizerState) => boolean,
+  reduce: (state: TokenizerState) => TokenizerState
+}
 
-export const Punctuation: { [index: string]: string } = {
-  ' ': TokenTypes.Space,
-  '\n': TokenTypes.Newline,
-  '\r': TokenTypes.Newline,
-  '\t': TokenTypes.Tab,
+
+export const Punctuation: { [index: string]: TokenType } = {
+  ' ': TokenType.Space,
+  '\n': TokenType.Newline,
+  '\r': TokenType.Newline,
+  '\t': TokenType.Tab,
 }
 
 export interface Token {
   tokenType: TokenType,
-  tokenNumber: number,
   lineNumber: number,
   columnNumber: number,
   value: string,
@@ -148,6 +156,7 @@ export interface TokenizerOptions {
 }
 
 export interface TokenizerState {
+  accumulatedTokens: Token[],
   cursorPosition: number,
   lineNumber: number,
   columnNumber: number,
@@ -156,24 +165,6 @@ export interface TokenizerState {
   nc?: string,
 }
 
-type StateModifierFunction = (
-  state: TokenizerState, 
-  context?: {
-    value?: string
-  }
-) => TokenizerState;
-
 export interface AbstractTokenizer {
-
-  getCurrentState(): TokenizerState;
-  process(input: string): Token[];
-  
-  parseMultilineComment: StateModifierFunction;
-  parseSinglelineComment: StateModifierFunction;
-  parseWhitespace: StateModifierFunction;
-  parseString: StateModifierFunction;
-  parseEquality: StateModifierFunction;
-  parseInequality: StateModifierFunction;
-  parseNumber: StateModifierFunction;
-  parseIdent: StateModifierFunction;
+  process(input: string): TokenizerState;
 }
