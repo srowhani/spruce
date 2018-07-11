@@ -1,4 +1,5 @@
-import { TokenType, TokenReducer, TokenizerState } from '@src/typings';
+import { TokenType, TokenReducer, TokenizerState, Punctuation } from '@src/typings';
+
 
 const ScssTokenReducer: ((input: string) => TokenReducer)[] = [
   (input: string) => ({
@@ -163,8 +164,24 @@ const ScssTokenReducer: ((input: string) => TokenReducer)[] = [
         cursorPosition
       } = state;
 
-      if (cc === '\r') {
-        cursorPosition
+      let value = '\n';
+
+      if (state.cc === '\r') {
+        value = '\r\n';
+        cursorPosition += 1;
+      }
+
+      return {
+        ...state,
+        cursorPosition,
+        lineNumber: state.lineNumber + 1,
+        columnNumber: 0, // reset line
+        accumulatedTokens: [...state.accumulatedTokens, {
+          tokenType: TokenType.Newline,
+          columnNumber: state.columnNumber,
+          lineNumber: state.lineNumber,
+          value,
+        }]
       }
     }
   })
